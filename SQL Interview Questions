@@ -1,0 +1,91 @@
+-- SQL Interview Questions
+
+create database employee;
+use employee;
+
+CREATE TABLE emp (
+empno BIGINT NOT NULL,
+ename VARCHAR(50) NOT NULL,
+job VARCHAR(50) NOT NULL,
+manager BIGINT,
+hiredate DATE,
+salary DOUBLE,
+deptno INT NOT NULL
+);
+select * from emp;
+
+insert into emp values (7370,'SMITH','CLERK',7902,'05-6-13',8000,20),
+(7499,'ALLEN','SALESMAN',7698,'06-8-15',16000,30),
+(7521,'WARD','SALESMAN',7698,'06-3-26',12500,30);
+insert into emp values (7566,'JONES','MANAGER',7839,'05-10-31',29750,20);
+insert into emp values (7698,'BLAKE','MANAGER',7839,'02-6-11',28500,30);
+insert into emp values (7782,'CLARK','MANAGER',7839,'03-5-14',24500,10);
+insert into emp values (7499,'ALLEN','SALESMAN',7698,'06-8-15',16000,30);
+insert into emp values (7788,'SCOTT','ANALYST',7566,'06-3-5',30000,20);
+insert into emp values (7839,'KING','PRESIDENT',null,'00-6-9',50000,10);
+insert into emp values (7844,'TURNER','SALESMAN',7698,'05-6-4',15000,30);
+insert into emp values (7876,'ADAMS','CLERK',7788,'09-6-4',11000,20);
+insert into emp values (7900,'JAMES','CLERK',7698,'10-6-23',9500,30);
+insert into emp values (7844,'TURNER','SALESMAN',7698,'05-6-4',15000,30);
+insert into emp values (7934,'MILLER','CLERK',7782,'09-1-21',13000,10);
+insert into emp values (7902,'FORD','ANALYST',7566,'07-12-5',30000,20);
+insert into emp values (7654,'MARTIN','SALESMAN',7698,'08-12-5',12500,30);
+
+CREATE TABLE dept (
+deptno BIGINT,
+dname VARCHAR(50),
+location VARCHAR(50)
+);
+insert into dept values (10,'Accounts','New York');
+insert into dept values (20,'R&D','Austin');
+insert into dept values (30,'Sales','Chicago');
+insert into dept values (40,'Operations','Texas');
+
+select * from dept;
+select * from emp;
+
+-- 1. Find Duplicate Rows in the Employee Table. Delete the Duplicate Rows.
+select empno, count(*) as duplicate_rows
+from emp
+group by empno
+having count(*) >1;
+
+delete from emp
+where empno in (
+select empno from(select empno from emp group by empno having count(*) >1) as duplicate_empno);
+
+-- 2. Find the employee who joined after 2006 and salary range between 20000 and 30000.
+select *
+from emp
+where hiredate >= '2006-01-01' and salary between 20000 and 30000;
+
+-- 3. Find top 5 employees with Maximum salary.
+select *
+from emp
+order by salary desc
+limit 5;
+
+-- 4. Find the Employee whose Name begins with 'M' and ends with 'R'
+select * 
+from emp
+where ename like 'M%R';
+
+-- Find the Employee who have letter 'A' at the third position.
+select * from emp
+where ename like '__A%';
+
+select ename, salary from emp
+order by salary desc;
+
+-- 6. Find the Top nTh Salary from the Employee Table
+Select ename, salary
+from emp e1
+where 1 = (select count(distinct salary) from emp e2
+where e2.salary > e1.salary);
+
+-- 7. Get total salary and total Employees for each Department
+select d.deptno, d.dname, sum(e.salary) as total_salary, count(empno) as total_emp
+from dept d
+left join emp e on e.deptno =d.deptno 
+group by 1,2
+order by total_salary desc;
